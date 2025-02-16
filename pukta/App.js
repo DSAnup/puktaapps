@@ -1,20 +1,26 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState } from "react";
+import { View } from 'react-native'
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import LoginScreen from './app/screens/LoginScreen';
+import WelcomeScreen from "./app/screens/WelcomeScreen";
 
 export default function App() {
+  const [user, setUser] = useState(null);
+    // Check if user is already logged in
+    useEffect(() => {
+        const checkLogin = async () => {
+            const storedUser = await AsyncStorage.getItem("user");
+            if (storedUser) {
+                setUser(JSON.parse(storedUser));
+            }
+        };
+        checkLogin();
+    }, []);
+
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+     <View style={{ flex: 1 }}>
+        {user ? <WelcomeScreen user={user} setUser={setUser} /> : <LoginScreen setUser={setUser} />}
+      </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
