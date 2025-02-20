@@ -6,6 +6,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import HomeScreen from "./HomeScreen";
 import ProfileScreen from "./ProfileScreen";
 import MenuScreen from "./MenuScreen";
+import PropertyScreen from "./PropertyScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -21,7 +22,7 @@ const WelcomeScreen = ({ user, setUser }) => {
 
             if (route.name === "Home") {
               iconName = "home";
-            } else if (route.name === "Menu") {
+            } else if (route.name === "Property") {
               iconName = "format-list-bulleted";
             } else if (route.name === "Profile") {
               iconName = "account";
@@ -41,8 +42,8 @@ const WelcomeScreen = ({ user, setUser }) => {
         <Tab.Screen name="Home">
           {() => <HomeScreen user={user} setUser={setUser} />}
         </Tab.Screen>
-        <Tab.Screen name="Menu">
-          {() => <MenuScreen user={user} />}
+        <Tab.Screen name="Property">
+          {() => <PropertyScreen user={user} />}
         </Tab.Screen>
         <Tab.Screen name="Profile">
           {() => <ProfileScreen user={user} setUser={setUser} />}

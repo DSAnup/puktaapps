@@ -13,7 +13,7 @@ export default function ProfileScreen({ user, setUser }) {
     
     return (
         <Screen style={styles.container}>
-            <AppText style={styles.title}>Profile Screen {user.userinfo.FIRSTNAME}</AppText>
+            {/* <AppText style={styles.title}>Profile Screen {user.userinfo.FIRSTNAME}</AppText> */}
             <Button title="Logout" onPress={handleLogout} />
         </Screen>
     );

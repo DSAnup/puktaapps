@@ -4,14 +4,13 @@ import { View, Text, Button, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Screen from "../components/Screen";
 import AppText from "../components/AppText";
+import MenuItems from "./MenuItems";
+import PropertyListScreen from "./PropertyListScreen";
 
 export default function MenuScreen({ user }) {
     const navigation = useNavigation();
     return (
-        <Screen style={styles.container}>
-            <AppText style={styles.title}>Menu Screen {user.userinfo.FIRSTNAME}</AppText>
-            <Button title="Go to Home" onPress={() => navigation.navigate("Home")} />
-        </Screen>
+        <PropertyListScreen/>
     );
 }
 
