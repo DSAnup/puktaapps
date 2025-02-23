@@ -61,6 +61,11 @@ const PropertyDetailsScreen = ({ route }) => {
                       <Text style={styles.details}> Amount: {item.Amount}</Text>
                   </TouchableOpacity>
                   )}
+                  ListEmptyComponent={() => (
+                                              <View style={styles.emptyContainer}>
+                                                  <Text style={styles.emptyText}>No Transactions found.</Text>
+                                              </View>
+                                          )}
               />
               )}
     </View>
@@ -88,4 +93,14 @@ const styles = StyleSheet.create({
   },
   title: { fontSize: 18, fontWeight: "bold" },
   details: { fontSize: 16, color: "gray", marginTop: 5 },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  emptyText: {
+      fontSize: 18,
+      color: "#888",
+      textAlign: "center",
+  },
 });
