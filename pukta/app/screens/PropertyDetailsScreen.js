@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator  } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import ListItemSeparator from "../components/ListItemSeparator";
 
 
 const PropertyDetailsScreen = ({ route }) => {
@@ -9,7 +11,9 @@ const PropertyDetailsScreen = ({ route }) => {
   const PropertyID = property.PropertyID;
   
   const [transactions, setTransactions] = useState([]); // Store fetched data
+  const [documents, setDocuments] = useState([]); // Store fetched data
   const [loading, setLoading] = useState(true); // Loading state
+  const Tab = createMaterialTopTabNavigator();
 
   const navigation = useNavigation();
 
@@ -35,39 +39,106 @@ const PropertyDetailsScreen = ({ route }) => {
           fetchTransactions();
       }, [PropertyID]); 
 
+      useEffect(() => {
+        const fetchDocuments = async () => {
+            try {
+                const response = await fetch(`https://admin.pukta.us/api/property.cfc?method=getPropertyDocuments&PropertyID=${PropertyID}`);
+                const data = await response.json();
+                
+                if (data.status === "success") {
+                  setDocuments(data.data); // Store property list
+                } else {
+                    console.error("Error fetching properties:", data.message);
+                }
+            } catch (error) {
+                console.error("Fetch error:", error);
+            } finally {
+                setLoading(false); // Stop loading
+            }
+        };
+
+        fetchDocuments();
+    }, [PropertyID]); 
+
+
+      const TransactionList = () => (
+        <View style={{ flex: 1 }}>
+          {loading ? (
+            <ActivityIndicator size="large" color="#007BFF" />
+          ) : (
+            <FlatList
+              data={transactions}
+              keyExtractor={(item) => item.TransactionID.toString()}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.card}
+                  onPress={() =>
+                    navigation.navigate("TransactionDetails", { transaction: item, property: property })
+                  }
+                >
+                  <Text style={styles.title}>
+                    {item.PropertySection}
+                    <Text style={styles.details}> ({item.ExpenseType})</Text>
+                  </Text>
+                  <Text style={styles.details}> Amount: {item.Amount}</Text>
+                </TouchableOpacity>
+              )}
+              ListEmptyComponent={() => (
+                <View style={styles.emptyContainer}>
+                  <Text style={styles.emptyText}>No Transactions found.</Text>
+                </View>
+              )}
+            />
+          )}
+        </View>
+      );
+    
+      // Document List Component
+      const DocumentList = () => (
+        <View style={{ flex: 1 }}>
+          {loading ? (
+            <ActivityIndicator size="large" color="#007BFF" />
+          ) : (
+            <FlatList
+              data={documents}
+              keyExtractor={(item) => item.DocumentID.toString()}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.card}
+                  // onPress={() =>
+                  //   navigation.navigate("TransactionDetails", { transaction: item, property: property })
+                  // }
+                >
+                  <Text style={styles.title}>
+                    {item.DocumentTypeName}
+                  </Text>
+                </TouchableOpacity>
+              )}
+              ListEmptyComponent={() => (
+                <View style={styles.emptyContainer}>
+                  <Text style={styles.emptyText}>No Documents found.</Text>
+                </View>
+              )}
+            />
+          )}
+        </View>
+      );
+    
+
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Property Details</Text>
+      {/* <Text style={styles.header}>Property Details</Text> */}
       <Text style={styles.detailText}><Text style={styles.label}>Address:</Text> {property.AddressLine1}</Text>
       <Text style={styles.detailText}><Text style={styles.label}>City:</Text> {property.City}</Text>
       <Text style={styles.detailText}><Text style={styles.label}>State:</Text> {property.stateName}</Text>
       <Text style={styles.detailText}><Text style={styles.label}>Zip Code:</Text> {property.ZipCode}</Text>
-      
-      <Text style={styles.header}>Transaction List</Text>
-
-      {loading ? (
-                      <ActivityIndicator size="large" color="#007BFF" />
-              ) : 
-              (<FlatList
-                  data={transactions}
-                  keyExtractor={(item) => item.TransactionID.toString()}
-                  renderItem={({ item }) => (
-                  <TouchableOpacity 
-                      style={styles.card} 
-                      onPress={() => navigation.navigate("TransactionDetails", { transaction: item, property: property })}
-                  >
-                      <Text style={styles.title}>{item.PropertySection} 
-                        <Text style={styles.details}> ({item.ExpenseType})</Text></Text>
-                      <Text style={styles.details}> Amount: {item.Amount}</Text>
-                  </TouchableOpacity>
-                  )}
-                  ListEmptyComponent={() => (
-                                              <View style={styles.emptyContainer}>
-                                                  <Text style={styles.emptyText}>No Transactions found.</Text>
-                                              </View>
-                                          )}
-              />
-              )}
+    
+      <ListItemSeparator/>
+      {/* Top Tabs for Transactions and Documents */}
+      <Tab.Navigator>
+        <Tab.Screen name="Transactions" component={TransactionList} />
+        <Tab.Screen name="Documents" component={DocumentList} />
+      </Tab.Navigator>
     </View>
     
   );
@@ -78,7 +149,7 @@ export default PropertyDetailsScreen;
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: "#fff" },
   header: { fontSize: 24, fontWeight: "bold", marginBottom: 20, textAlign: "center" },
-  detailText: { fontSize: 18, marginBottom: 10 },
+  detailText: { fontSize: 18, marginBottom: 10, textAlign:'center' },
   label: { fontWeight: "bold", color: "#333" },
   card: {
     backgroundColor: "white",
