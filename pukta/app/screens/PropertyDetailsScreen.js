@@ -1,6 +1,6 @@
 // screens/PropertyDetailsScreen.js
 import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator  } from "react-native";
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, Button  } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import ListItemSeparator from "../components/ListItemSeparator";
@@ -63,6 +63,11 @@ const PropertyDetailsScreen = ({ route }) => {
 
       const TransactionList = () => (
         <View style={{ flex: 1 }}>
+          <Button
+            title="Add Transaction"
+            color="#007BFF"
+            onPress={() => navigation.navigate("AddTransaction", { PropertyID })}
+          />
           {loading ? (
             <ActivityIndicator size="large" color="#007BFF" />
           ) : (
@@ -96,6 +101,11 @@ const PropertyDetailsScreen = ({ route }) => {
       // Document List Component
       const DocumentList = () => (
         <View style={{ flex: 1 }}>
+          <Button
+            title="Add Documents"
+            color="#007BFF"
+            onPress={() => navigation.navigate("AddDocuments", { PropertyID })}
+          />
           {loading ? (
             <ActivityIndicator size="large" color="#007BFF" />
           ) : (
