@@ -7,6 +7,8 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 
 const AddTransactionScreen = ({ route, navigation }) => {
   const { PropertyID } = route.params; // Get PropertyID from route params
+  const user = route.params?.user;
+  const AppUserId = user.userinfo.APPUSERID[0]
 
   const [payee, setPayee] = useState("");
   const [transactionDate, setTransactionDate] = useState(new Date());
@@ -39,7 +41,7 @@ const AddTransactionScreen = ({ route, navigation }) => {
     fetchExpenseTypes();
   }, []);
 
-  // Fetch Expense Types from API
+  // Fetch Property Section from API
   useEffect(() => {
     const fetchPropertySections = async () => {
       try {
@@ -48,7 +50,7 @@ const AddTransactionScreen = ({ route, navigation }) => {
 
         if (data.status === "success") {
           setPropertySections(data.data);
-          setSelectedPropertySection(data.data.length > 0 ? data.data[0].ExpenseTypeID : "");
+          setSelectedPropertySection(data.data.length > 0 ? data.data[0].PropertySectionID : "");
         } else {
           console.error("Error fetching expense types:", data.message);
         }
@@ -70,30 +72,41 @@ const AddTransactionScreen = ({ route, navigation }) => {
 
   // Handle form submission
   const handleSubmit = async () => {
-    if (!payee || !selectedExpenseType || !amount) {
+    if (!payee || !selectedExpenseType || !selectedPropertySection || !amount) {
       Alert.alert("Error", "Please fill all required fields.");
       return;
     }
-
+  
     const transactionData = {
       PropertyID,
+      AppUserId: AppUserId,
       Payee: payee,
       TransactionDate: transactionDate.toISOString().split("T")[0], // Format YYYY-MM-DD
       ExpenseTypeID: selectedExpenseType,
       PropertySectionID: selectedPropertySection,
       Amount: parseFloat(amount),
-      Note: note,
+      Note: note 
     };
-
+  
     try {
       const response = await fetch("https://admin.pukta.us/api/property.cfc?method=addTransaction", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(transactionData),
       });
-
-      const result = await response.json();
-
+  
+      const responseText = await response.text();  // Get raw response text
+  
+      // Try parsing JSON
+      let result;
+      try {
+        result = JSON.parse(responseText);
+      } catch (error) {
+        console.error("JSON Parse Error:", error);
+        Alert.alert("Error", "Invalid response from the server.");
+        return;
+      }
+  
       if (result.status === "success") {
         Alert.alert("Success", "Transaction added successfully!");
         navigation.goBack();
@@ -101,9 +114,11 @@ const AddTransactionScreen = ({ route, navigation }) => {
         Alert.alert("Error", result.message || "Failed to add transaction.");
       }
     } catch (error) {
+      console.error("Fetch Error:", error);
       Alert.alert("Error", "Something went wrong. Please try again.");
     }
   };
+  
 
   return (
     <View style={styles.container}>
@@ -132,7 +147,7 @@ const AddTransactionScreen = ({ route, navigation }) => {
 
       <Text style={styles.label}>Expense Type</Text>
       <View style={styles.pickerContainer}>
-        <Picker selectedValue={selectedPropertySection} onValueChange={(value) => setSelectedExpenseType(value)}>
+        <Picker selectedValue={selectedExpenseType} onValueChange={(value) => setSelectedExpenseType(value)}>
           {expenseTypes.map((type) => (
             <Picker.Item key={type.ExpenseTypeID} label={type.ExpenseTypeName} value={type.ExpenseTypeID} />
           ))}
@@ -140,7 +155,7 @@ const AddTransactionScreen = ({ route, navigation }) => {
       </View>
       <Text style={styles.label}>Property Section</Text>
       <View style={styles.pickerContainer}>
-        <Picker selectedValue={selectedExpenseType} onValueChange={(value) => setSelectedPropertySection(value)}>
+        <Picker selectedValue={selectedPropertySection} onValueChange={(value) => setSelectedPropertySection(value)}>
           {propertySections.map((type) => (
             <Picker.Item key={type.PropertySectionID} label={type.PropertySectionName} value={type.PropertySectionID} />
           ))}

@@ -31,6 +31,7 @@ const PropertyScreen = ({ user }) => {
         <Stack.Screen 
           name="AddTransaction" 
           component={AddTransactionScreen} 
+          initialParams={{ user }}
           options={{ title: "Add Transaction" }} 
         />
         <Stack.Screen 
