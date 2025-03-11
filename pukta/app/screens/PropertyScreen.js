@@ -37,6 +37,7 @@ const PropertyScreen = ({ user }) => {
         <Stack.Screen 
           name="AddDocuments" 
           component={AddDocumentScreen} 
+          initialParams={{ user }}
           options={{ title: "Add Documents" }} 
         />
       </Stack.Navigator>

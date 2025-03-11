@@ -1,9 +1,10 @@
 // screens/PropertyDetailsScreen.js
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, Button  } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import ListItemSeparator from "../components/ListItemSeparator";
+import { useFocusEffect } from "@react-navigation/native";
 
 
 const PropertyDetailsScreen = ({ route }) => {
@@ -17,48 +18,52 @@ const PropertyDetailsScreen = ({ route }) => {
 
   const navigation = useNavigation();
 
-  // Fetch Data from API
-      useEffect(() => {
-          const fetchTransactions = async () => {
-              try {
-                  const response = await fetch(`https://admin.pukta.us/api/property.cfc?method=getPropertyTransactions&PropertyID=${PropertyID}`);
-                  const data = await response.json();
-                  
-                  if (data.status === "success") {
-                    setTransactions(data.data); // Store property list
-                  } else {
-                      console.error("Error fetching properties:", data.message);
-                  }
-              } catch (error) {
-                  console.error("Fetch error:", error);
-              } finally {
-                  setLoading(false); // Stop loading
-              }
-          };
+  useFocusEffect(
+    useCallback(() => {
+      const fetchTransactions = async () => {
+        try {
+          setLoading(true);
+          const response = await fetch(`https://admin.pukta.us/api/property.cfc?method=getPropertyTransactions&PropertyID=${PropertyID}`);
+          const data = await response.json();
   
-          fetchTransactions();
-      }, [PropertyID]); 
+          if (data.status === "success") {
+            setTransactions(data.data);
+          } else {
+            console.error("Error fetching transactions:", data.message);
+          }
+        } catch (error) {
+          console.error("Fetch error:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      fetchTransactions();
+    }, [PropertyID]) // Re-run when PropertyID changes
+  );
 
-      useEffect(() => {
-        const fetchDocuments = async () => {
-            try {
-                const response = await fetch(`https://admin.pukta.us/api/property.cfc?method=getPropertyDocuments&PropertyID=${PropertyID}`);
-                const data = await response.json();
-                
-                if (data.status === "success") {
-                  setDocuments(data.data); // Store property list
-                } else {
-                    console.error("Error fetching properties:", data.message);
-                }
-            } catch (error) {
-                console.error("Fetch error:", error);
-            } finally {
-                setLoading(false); // Stop loading
-            }
-        };
+  useFocusEffect(
+    useCallback(() => {
+      const fetchDocuments = async () => {
+          try {
+              const response = await fetch(`https://admin.pukta.us/api/property.cfc?method=getPropertyDocuments&PropertyID=${PropertyID}`);
+              const data = await response.json();
+              
+              if (data.status === "success") {
+                setDocuments(data.data); // Store property list
+              } else {
+                  console.error("Error fetching properties:", data.message);
+              }
+          } catch (error) {
+              console.error("Fetch error:", error);
+          } finally {
+              setLoading(false); // Stop loading
+          }
+      };
 
-        fetchDocuments();
-    }, [PropertyID]); 
+      fetchDocuments();
+    }, [PropertyID])
+  ); 
 
 
       const TransactionList = () => (

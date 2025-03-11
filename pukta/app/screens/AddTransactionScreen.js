@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { 
-  View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity, Platform 
+  View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity, Platform, ScrollView, KeyboardAvoidingView, TouchableWithoutFeedback , Keyboard 
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -121,6 +121,12 @@ const AddTransactionScreen = ({ route, navigation }) => {
   
 
   return (
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === "ios" ? "padding" : "height"} 
+      style={{ flex: 1 }}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 20 }}>
     <View style={styles.container}>
 
       <Text style={styles.label}>Payee</Text>
@@ -178,10 +184,15 @@ const AddTransactionScreen = ({ route, navigation }) => {
         value={note}
         onChangeText={setNote}
         multiline
+        scrollEnabled 
+        textAlignVertical="top"
       />
 
       <Button title="Add Transaction" onPress={handleSubmit} color="#007BFF" />
     </View>
+    </ScrollView>
+    </TouchableWithoutFeedback>
+  </KeyboardAvoidingView>
   );
 };
 
@@ -209,9 +220,9 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     padding: 10,
     borderRadius: 5,
-    minHeight: 80,
+    height: 100,
     textAlignVertical: "top",
-    marginBottom: 10,
+    marginBottom: 40,
   },
   datePickerButton: {
     padding: 10,
